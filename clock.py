@@ -7,7 +7,12 @@ import time
 from threading import Thread
 import random
 
-def consumer(conn):
+def consumer(conn : socket):
+    """ Creates a consumer thread
+
+    Args:
+        conn (socket): socket connection
+    """
     print("consumer accepted connection" + str(conn)+"\n")
     msg_queue=[]
     sleepVal = 0.900
@@ -15,10 +20,10 @@ def consumer(conn):
         time.sleep(sleepVal)
         data = conn.recv(1024)
         print("msg received\n") 
-        ataVal = data.decode('ascii')
+        dataVal = data.decode('ascii')
         print("msg received:", dataVal)
         msg_queue.append(dataVal)
- 
+
 
 def producer(portVal):
     host= "127.0.0.1"
