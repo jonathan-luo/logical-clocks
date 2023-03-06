@@ -82,11 +82,15 @@ def server(config):
 
 
 def consumer(conn):
+    """Function to continually load messages received into the message queue"""
+
     print(f"Consumer accepted connection `{conn}`\n")
 
+    # Declare global message queue (TODO: Is the message queue supposed to be global?)
     global queue
     queue = []
 
+    # Continually receive messages (TODO: Message contents are just the timestamp of the other machine, should we change?)
     while True:
         data = conn.recv(BUFSIZE)
         msg = data.decode()
@@ -96,6 +100,9 @@ def consumer(conn):
 
 
 def producer(server_info, client_info, log_file):
+    """Defines producer (client) logic; i.e., reading from message queue or otherwise performing randomly determined operations"""
+
+    # TODO: Figure out whether logical clock is per pair of communicating sockets or for each virtual machine as a whole
     global logical_time
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
@@ -122,7 +129,7 @@ def producer(server_info, client_info, log_file):
 
                     # Log that a message was received
                     log_message(
-                        "Receive" + f" {server_info}",
+                        "Receive",
                         formatted_curr_global_time(),
                         logical_time,
                         log_file,
@@ -132,6 +139,7 @@ def producer(server_info, client_info, log_file):
             # Else, use RNG to determine which operation to perform
             else:
                 queue_lock.release()
+
                 # Generate operation number
                 op = randrange(MIN_OPERATION_NUM, MAX_OPERATION_NUM + 1)
 
@@ -142,7 +150,7 @@ def producer(server_info, client_info, log_file):
                     # If operation number greater than 3, simply log an internal event
                     if op > 3:
                         log_message(
-                            "Internal Event" + f" {server_info}",
+                            "Internal Event",
                             formatted_curr_global_time(),
                             logical_time,
                             log_file
@@ -150,13 +158,20 @@ def producer(server_info, client_info, log_file):
 
                     # Else, handle operation accordingly
                     else:
+                        # TODO: Will likely need to move or edit the line below -- functionality isn't exactly correct atm
                         s.send(str(logical_time).encode())
 
                         # TODO: Implement behavior according to 1, 2, 3
+                        if op == 1:
+                            pass
+                        elif op == 2:
+                            pass
+                        else:
+                            pass
 
                         # Log that a message was sent
                         log_message(
-                            "Send" + f" {server_info}",
+                            "Send",
                             formatted_curr_global_time(),
                             logical_time,
                             log_file
@@ -167,25 +182,23 @@ def producer(server_info, client_info, log_file):
 
 
 def run_model():
-    port1 = 2056
-    port2 = 3056
-    port3 = 4056
+    """Runs model with 3 intercommunicating virtual machines"""
 
     config1 = [
-        (LOCALHOST, port1),
-        [(LOCALHOST, port2), (LOCALHOST, port3)],
+        (LOCALHOST, PORT_1),
+        [(LOCALHOST, PORT_2), (LOCALHOST, PORT_3)],
         "p1_log.txt"
     ]
     p1 = Process(target=machine, args=(config1,))
     config2 = [
-        (LOCALHOST, port2),
-        [(LOCALHOST, port1), (LOCALHOST, port3)],
+        (LOCALHOST, PORT_2),
+        [(LOCALHOST, PORT_1), (LOCALHOST, PORT_3)],
         "p2_log.txt"
     ]
     p2 = Process(target=machine, args=(config2,))
     config3 = [
-        (LOCALHOST, port3),
-        [(LOCALHOST, port1), (LOCALHOST, port2)],
+        (LOCALHOST, PORT_3),
+        [(LOCALHOST, PORT_1), (LOCALHOST, PORT_2)],
         "p3_log.txt"
     ]
     p3 = Process(target=machine, args=(config3,))
