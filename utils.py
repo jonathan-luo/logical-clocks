@@ -51,7 +51,6 @@ def machine(config):
     logical_time = 0
 
     # Determine tick duration using RNG
-    global TICK_DURATION
     TICK_DURATION = 1 / randrange(MIN_OPERATION_NUM, MAX_TICKS_PER_SEC + 1)
     print(config[0], TICK_DURATION)
 
