@@ -153,18 +153,18 @@ def producer(client_info, server_info, log_file, thread_num):
                 queue_lock.release()
                 continue
 
-            # If message queue is not empty for the first thread to check, receive message
+            # If message queue is not empty for the fastest thread, receive message
             if queue and not not_receive.is_set():
                 # Mark that this thread is receiving on this tick
                 receive.set()
 
-                # Record necessary information from queue
-                queue_len = len(queue) # TODO: Figure out if should be length BEFORE or AFTER popping
+                # Record queue length before popping and message timestamps
+                queue_len = len(queue)
                 timestamp = int(queue.pop(0))
                 queue_lock.release()
 
-                # Reset logical time to maximum of timestamp and logical time minus 1 (since preincremented in tick loop), plus 1
-                # This uses the Lamport Algorithm
+                # Reset logical time to maximum of timestamp and logical time minus 1 (since logical time is preincremented in tick loop), plus 1
+                # This implements the Lamport Algorithm
                 with clock_lock:
                     logical_time = max(timestamp, logical_time - 1) + 1
                     logical_time_copy = logical_time
@@ -180,7 +180,7 @@ def producer(client_info, server_info, log_file, thread_num):
 
             # Else, use RNG to determine which operation to perform
             else:
-                # Mark that the following thread should not receive even if queue is non-empty
+                # Mark that slower thread(s) should not receive even if queue is non-empty
                 not_receive.set()
                 queue_lock.release()
 
