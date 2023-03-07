@@ -1,8 +1,10 @@
 # Scale Models and Logical Clocks ###
+
+Created by Michael Hu, Jonathan Luo and Matt Kiley.
+
 ## Description
 This is a model of three intercommunicating virtual machines, each of which implement a logical clock using the Lamport timestamp algorithm.
 
-Created by Michael Hu, Jonathan Luo and Matt Kiley.
 ## Usage
 
 ### Requirements
