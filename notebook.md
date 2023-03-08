@@ -20,7 +20,7 @@ The `machine()` function takes in a configuration object and initializes the vir
 
 
 ### Server Thread
-Each time the `server()` thread detects a new connection attempt, it spawns a new consumer thread responsible for socket message reception. 
+Each time the `server()` thread detects a new connection attempt, it spawns a new consumer thread responsible for socket message reception.
 
 ### Consumer Thread
 As each machine has two "neighbor" machines, each machine will spawn 2 consumer threads, and as permitted in the assignment specification, each `consumer()` thread listens for and loads messages at system speed, not the randomly chosen tick rate of the virtual machines. It loads these messages into the global message queue (implemented as a python `list`).
@@ -29,7 +29,7 @@ As each machine has two "neighbor" machines, each machine will spawn 2 consumer 
 The `producer()` function takes in a client and server information, a log file name, and a thread number. The function defines the producer (client) logic by doing the following:
 
 Each producer thread consists of a busy while loop containing the logic to determine which of the five operations to perform during a given clock tick:
-1. send message to another machine, 
+1. send message to another machine,
 2. send message to the other machine (i.e., not the machine from (1))
 3. send message to both other machines
 4. internal event
@@ -65,9 +65,9 @@ Thread events were used to ensure that even though there are multiple producer t
 The code uses the following events:
 - `tick`: This event is used within producers to signal that a clock tick loop has begun, and then cleared whenever a producer thread completes an iteration in the busy while loop.
 
-- `receive`: Thus event serves the purpose of notifying the slower `producer` thread to not receive when the faster thread has already received a message. It is set when the faster thread finds that the message queue is not empty during a clock tick. It is cleared once the faster thread reaches the end of its iteration (effectively the end of the clock tick).
+- `receive`: This event serves the purpose of notifying the slower `producer` thread to not receive when the faster thread has already received a message. It is set when the faster thread finds that the message queue is not empty during a clock tick. It is cleared once the faster thread reaches the end of its iteration (effectively the end of the clock tick).
 
-- `not_receive`: Thus event notifies the slower `producer` thread to not receive in the edge case that the queue becomes non-empty between the time in which the faster thread checks that it is empty and the slower thread checks that it is empty (if we did not have this check, the faster thread may find that the queue is empty, and possibly send a message, but then, in the same clock tick, the slower thread would receive a message -- this is TWO events in one clock tick, which is not desired). This event is set when the faster thread finds that the queue is empty and is cleared once either thread reaches the end of its iteration/end of clock tick.
+- `not_receive`: This event notifies the slower `producer` thread to not receive in the edge case that the queue becomes non-empty between the time in which the faster thread checks that it is empty and the slower thread checks that it is empty (if we did not have this check, the faster thread may find that the queue is empty, and possibly send a message, but then, in the same clock tick, the slower thread would receive a message -- this is TWO events in one clock tick, which is not desired). This event is set when the faster thread finds that the queue is empty and is cleared once either thread reaches the end of its iteration/end of clock tick.
 
 ## Logging
 To make it simple for us to later analyze the results of our simulations, we logged each of the virtual machine's operations in CSV format in CSV files. Data are stored in columns in the order "Operation, Global Time, Logical Time, Length of Message Queue". Whereas Receive operations record the length of the message queue (before an item is popped), Send and Internal Event operations record the Length of Message Queue as "N/A", by default. This is done with our helper function `log_message()`. The function uses our `log_file_lock` to ensure that only one thread can write to the file at a time.
@@ -76,4 +76,24 @@ To make it simple for us to later analyze the results of our simulations, we log
 TODO
 
 ## Analysis
-TODO
+In general, we found that virtual machines running on slower tick speed consistently had higher prevalence of message queue buildup and similarly more clock jumps (i.e., an incrementation of the logical clock by a value greater than 1 following one operation). This is likely due to the fact that faster tick speed virtual machines perform more operations per second, and are thus are capable of sending more messages to slower machines. As such, slower tick speed machines are often left "playing catch up" with the faster tick speed machines, where slower machines tend to perform a significantly higher proportion of Receive operations (TODO: PROVIDE EVIDENCE). Faster tick speed machines
+
+The plots below demonstrate the change in logical clock value over each operation perform for a 1-minute simulation of three intercommunicating machines. In this model,
+- Machine 1 had a tick duration of ___ sec
+- Machine 2 had a tick duration of ___ sec
+- Machine 3 had a tick duration of ___ sec
+
+(TODO: Insert screenshots of plots from `analysis.ipynb`)
+
+We can also examine the average logical clock jump for each machine (TODO: Can obtain by running second cell of `analysis.ipynb`):
+- Machine 1 = ___
+- Machine 2 = ___
+- Machine 3 = ___
+
+We also aggregated average logical clock jumps for four additional 1-minute simulations, shown below:
+
+(TODO: Insert table of results from all five 1-minute simulations)
+
+Hence, we see that machines with slower tick speeds (high tick duration) generally have higher average logical clock jumps, and this is due to the nature of the Lamport Algorithm -- faster tick speed machines will inherently increment their logical clocks more often, and thus slower tick speed machines, when they receive messages from these faster machines, will generally have an internal logical clock value smaller than that of the timestamp of the message they received. Hence, they will update their logical clock to be the maximum of these two values, plus 1, thereby resulting in noticeable jumps, to keep as synchronized as possible with the faster machines. It must be noted that even the fastest tick speed machine(s) also experience logical clock jumps as well, and this is likely due to ___.
+
+TODO: More analysis as y'all please.

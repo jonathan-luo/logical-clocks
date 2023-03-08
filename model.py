@@ -9,19 +9,19 @@ def run_model():
     config1 = [
         (LOCALHOST, PORT_1),
         [(LOCALHOST, PORT_2), (LOCALHOST, PORT_3)],
-        "p1_log.csv"
+        LOG_FILE_1
     ]
     p1 = Process(target=machine, args=(config1,))
     config2 = [
         (LOCALHOST, PORT_2),
         [(LOCALHOST, PORT_1), (LOCALHOST, PORT_3)],
-        "p2_log.csv"
+        LOG_FILE_2
     ]
     p2 = Process(target=machine, args=(config2,))
     config3 = [
         (LOCALHOST, PORT_3),
         [(LOCALHOST, PORT_1), (LOCALHOST, PORT_2)],
-        "p3_log.csv"
+        LOG_FILE_3
     ]
     p3 = Process(target=machine, args=(config3,))
 
