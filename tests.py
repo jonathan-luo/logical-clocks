@@ -19,23 +19,31 @@ class TestProgram(unittest.TestCase):
         [(LOCALHOST, PORT_2), (LOCALHOST, PORT_3)],
         "p1_log.csv"
         ]
+        self.p1_process = Process(target=machine, args=(config1,))
         
-        self.p1_process = Process(target=machine, args=(config1,)).start()
         
         config2 = [
             (LOCALHOST, PORT_2),
             [(LOCALHOST, PORT_1), (LOCALHOST, PORT_3)],
             "p2_log.csv"
         ]
-        self.p2_proces = Process(target=machine, args=(config2,)).start()
+        self.p2_process = Process(target=machine, args=(config2,))
         
         config3 = [
             (LOCALHOST, PORT_3),
             [(LOCALHOST, PORT_1), (LOCALHOST, PORT_2)],
             "p3_log.csv"
         ]
-        self.p3_proces = Process(target=machine, args=(config3,)).start()
-
+        self.p3_process = Process(target=machine, args=(config3,))
+        
+        self.p1_process.start()
+        self.p2_process.start()
+        self.p3_process.start()
+        
+        # Wait for everything to initialize
+        sleep(INITIAL_WAIT_TIME)
+        
+    
     def tearDown(self):
         self.p1_process.terminate()
         self.p2_process.terminate()
@@ -44,16 +52,19 @@ class TestProgram(unittest.TestCase):
         os.remove(self.p1_log_path)
         os.remove(self.p2_log_path)
         os.remove(self.p3_log_path)
-
-    def test_run_model(self):
+        
+        
+    def test_run_model(self):   
         # Check if log files are created and not empty
-        sleep(5)
+        sleep(1)
         self.assertTrue(os.path.exists(self.p1_log_path))
         self.assertGreater(os.path.getsize(self.p1_log_path), 0)
         self.assertTrue(os.path.exists(self.p2_log_path))
         self.assertGreater(os.path.getsize(self.p2_log_path), 0)
         self.assertTrue(os.path.exists(self.p3_log_path))
         self.assertGreater(os.path.getsize(self.p3_log_path), 0)
+        
+        print("Passed test_run_model()")
         
 
 if __name__ == '__main__':
