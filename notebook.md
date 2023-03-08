@@ -79,16 +79,16 @@ The unit test ensures that our program's log files exist and make logical sense.
 In general, we found that virtual machines running on slower tick speed consistently had higher prevalence of message queue buildup and similarly more clock jumps (i.e., an incrementation of the logical clock by a value greater than 1 following one operation). This is likely due to the fact that faster tick speed virtual machines perform more operations per second, and are thus are capable of sending more messages to slower machines. As such, slower tick speed machines are often left "playing catch up" with the faster tick speed machines, where slower machines tend to perform a significantly higher proportion of Receive operations (TODO: PROVIDE EVIDENCE). Faster tick speed machines had greater proportions of Send and Internal Event operations, as expected.
 
 The plots below demonstrate the change in logical clock value over each operation perform for a 1-minute simulation of three intercommunicating machines. In this model,
-- Machine 1 had a tick duration of ___ sec
-- Machine 2 had a tick duration of ___ sec
-- Machine 3 had a tick duration of ___ sec
+- Machine 1 had a tick duration of 0.167 sec
+- Machine 2 had a tick duration of 1 sec
+- Machine 3 had a tick duration of 0.2 sec
 
-(TODO: Insert screenshots of plots from `analysis.ipynb`)
+![image](analysis.png)
 
 We can also examine the average logical clock jump for each machine (TODO: Can obtain by running second cell of `analysis.ipynb`):
-- Machine 1 = ___
-- Machine 2 = ___
-- Machine 3 = ___
+- Machine 1 = 1.042
+- Machine 2 = 3.704
+- Machine 3 = 1.247
 
 We also aggregated average logical clock jumps for four additional 1-minute simulations, shown below:
 
