@@ -73,7 +73,7 @@ The code uses the following events:
 To make it simple for us to later analyze the results of our simulations, we logged each of the virtual machine's operations in CSV format in CSV files. Data are stored in columns in the order "Operation, Global Time, Logical Time, Length of Message Queue". Whereas Receive operations record the length of the message queue (before an item is popped), Send and Internal Event operations record the Length of Message Queue as "N/A", by default. This is done with our helper function `log_message()`. The function uses our `log_file_lock` to ensure that only one thread can write to the file at a time.
 
 ## Unit Testing
-TODO
+The unit test ensures that our program's log files exist and make logical sense.
 
 ## Analysis
 In general, we found that virtual machines running on slower tick speed consistently had higher prevalence of message queue buildup and similarly more clock jumps (i.e., an incrementation of the logical clock by a value greater than 1 following one operation). This is likely due to the fact that faster tick speed virtual machines perform more operations per second, and are thus are capable of sending more messages to slower machines. As such, slower tick speed machines are often left "playing catch up" with the faster tick speed machines, where slower machines tend to perform a significantly higher proportion of Receive operations (TODO: PROVIDE EVIDENCE). Faster tick speed machines had greater proportions of Send and Internal Event operations, as expected.

@@ -9,7 +9,8 @@ from constants import *
 
 
 class TestProgram(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.log_paths = ["p1_log.csv", "p2_log.csv", "p3_log.csv"]
 
         config1 = [
@@ -46,9 +47,10 @@ class TestProgram(unittest.TestCase):
         self.p1_process.terminate()
         self.p2_process.terminate()
         self.p3_process.terminate()
-        
-    
-    def tearDown(self):
+     
+   
+    @classmethod
+    def tearDownClass(self):
         for log_path in self.log_paths:
             if os.path.exists(log_path):
                 os.remove(log_path)
@@ -77,6 +79,22 @@ class TestProgram(unittest.TestCase):
                     self.assertEqual(len(row), expected_num_columns)
 
       
+    def test_log_file_time(self):
+        # Check if log file contains the correct operations
+        for log_path in self.log_paths:
+            with open(log_path, 'r') as file:
+                reader = csv.reader(file)
+                
+                # Skip header row
+                next(reader)
+                prev = -1
+                
+                # Check if each row contains the correct operation
+                for row in reader:
+                    _, _, logical_time, _ = row
+                    self.assertGreaterEqual(int(logical_time), prev)
+                    prev = int(logical_time)
+                        
     def test_log_file_content(self):
         # Check if log file contains the correct operations
         for log_path in self.log_paths:
