@@ -1,6 +1,5 @@
 import os
 import unittest
-import socket
 from multiprocessing import Process
 from unittest.mock import patch
 from utils import machine, server
@@ -17,7 +16,7 @@ class TestProgram(unittest.TestCase):
         config1 = [
         (LOCALHOST, PORT_1),
         [(LOCALHOST, PORT_2), (LOCALHOST, PORT_3)],
-        "p1_log.csv"
+        self.p1_log_path
         ]
         self.p1_process = Process(target=machine, args=(config1,))
         
@@ -25,14 +24,14 @@ class TestProgram(unittest.TestCase):
         config2 = [
             (LOCALHOST, PORT_2),
             [(LOCALHOST, PORT_1), (LOCALHOST, PORT_3)],
-            "p2_log.csv"
+            self.p2_log_path
         ]
         self.p2_process = Process(target=machine, args=(config2,))
         
         config3 = [
             (LOCALHOST, PORT_3),
             [(LOCALHOST, PORT_1), (LOCALHOST, PORT_2)],
-            "p3_log.csv"
+            self.p3_log_path
         ]
         self.p3_process = Process(target=machine, args=(config3,))
         
