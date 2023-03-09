@@ -70,15 +70,12 @@ def machine(config, tick_rate=None, max_op_code=MAX_OPERATION_CODE):
     log_file.close()
 
     # Create and connect all producers (stored in `config[1]`)
-    op_lock.acquire()
     for (i, client) in enumerate(config[1]):
         t = Thread(target=producer, args=(config[0], client, config[2], i + 1))
         t.start()
 
-    # Initialize operation code
+    # Declare operation code variable
     global op_code
-    op_code = randrange(MIN_OPERATION_CODE, max_op_code + 1)
-    op_lock.release()
 
     # Busy loop generating operation code and ticks
     while True:
@@ -119,9 +116,8 @@ def consumer(conn):
     # Continually receive messages
     while True:
         data = conn.recv(BUFSIZE)
-        msg = data.decode()
-        if msg != '':
-            queue.append(msg)
+        if data:
+            queue.append(data.decode())
 
 
 def producer(client_info, server_info, log_file, thread_num):

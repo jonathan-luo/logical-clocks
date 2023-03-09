@@ -92,6 +92,11 @@ We can also examine the average logical clock jump for each machine (TODO: Can o
 
 We also aggregated average logical clock jumps for four additional 1-minute simulations, shown below:
 
-(TODO: Insert table of results from all five 1-minute simulations)
+|          | Tick Duration (s)                               | Average Logical Clock Jump                      |
+| Machine  | Trial 1 | Trial 2 | Trial 3 | Trial 4 | Trial 5 | Trial 1 | Trial 2 | Trial 3 | Trial 4 | Trial 5 |
+| -------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
+| 1        | 0.167   | 0.167   | 1.00    | 0.200   | 0.167   | 1.012   | 1.000   | 2.567   | 1.220   | 1.000   |
+| 2        | 1.00    | 0.500   | 0.333   | 0.167   | 1.00    | 3.200   | 2.847   | 1.931   | 1.020   | 4.667   |
+| 3        | 0.167   | 0.333   | 0.167   | 0.250   | 1.00    | 1.012   | 1.955   | 1.000   | 1.431   | 4.550   |
 
 Hence, we see that machines with slower tick speeds (high tick duration) generally have higher average logical clock jumps, and this is due to the nature of the Lamport Algorithm -- faster tick speed machines will inherently increment their logical clocks more often, and thus slower tick speed machines, when they receive messages from these faster machines, will generally have an internal logical clock value smaller than that of the timestamp of the message they received. Hence, they will update their logical clock to be the maximum of these two values, plus 1, thereby resulting in noticeable jumps, to keep as synchronized as possible with the faster machines. It must be noted that even the fastest tick speed machine(s) also experienced logical clock jumps as well, and this is likely due to the fact that the Lamport Algorithm is designed to ensure causal ordering of events, rather than real-time ordering. Therefore, even in a system where all machines have the same tick speed, logical clock jumps may still occur if messages are received out of order or if there are delays in message transmission. Additionally, in a distributed system with multiple machines, there may be inherent variability in network latency and processing speed that can contribute to logical clock jumps. However, in general, machines with slower tick speeds will experience more noticeable logical clock jumps due to the "catch up" effect described earlier.
