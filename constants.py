@@ -6,9 +6,9 @@ LOCALHOST = "127.0.0.1"
 TIME_FORMAT = '%F %T.%f'
 BUFSIZE = 64
 
-MIN_OPERATION_NUM = 1
-MAX_OPERATION_NUM = 10
-MAX_TICKS_PER_SEC = 6
+MIN_OPERATION_CODE = 1
+MAX_OPERATION_CODE = 10
+MAX_TICKS_RATE = 6
 
 INITIAL_WAIT_TIME = 3 # Amount of time, in seconds, to wait for everything to initialize
 

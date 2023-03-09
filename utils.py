@@ -1,9 +1,9 @@
 import socket
-import time
 from constants import *
 from datetime import datetime
 from random import randrange
 from threading import Event, Lock, Thread
+from time import sleep
 
 
 def log_message(file_name, operation, global_time, logical_time, message_contents="N/A"):
@@ -20,7 +20,7 @@ def formatted_curr_global_time():
     return datetime.now().strftime(TIME_FORMAT)
 
 
-def machine(config):
+def machine(config, tick_rate=None, max_op_code=MAX_OPERATION_CODE):
     """Configures virtual machines by initializing both server-side logic
     and creating producers to connect to other machines"""
 
@@ -50,8 +50,9 @@ def machine(config):
     global logical_time
     logical_time = 0
 
-    # Determine tick duration using RNG
-    TICK_DURATION = 1 / randrange(MIN_OPERATION_NUM, MAX_TICKS_PER_SEC + 1)
+    # Determine tick duration using RNG if rate not given as parameter
+    TICK_DURATION = \
+        1 / (tick_rate if tick_rate else randrange(MIN_OPERATION_CODE, MAX_TICKS_RATE + 1))
     print(config[0], TICK_DURATION)
 
     # Initialize server-side logic
@@ -59,7 +60,7 @@ def machine(config):
     server_thread.start()
 
     # Initial delay for other machines to complete
-    time.sleep(INITIAL_WAIT_TIME)
+    sleep(INITIAL_WAIT_TIME)
 
     # Clear log file
     log_file = open(config[2], 'w')
@@ -76,17 +77,14 @@ def machine(config):
 
     # Initialize operation code
     global op_code
-    op_code = randrange(MIN_OPERATION_NUM, MAX_OPERATION_NUM + 1)
+    op_code = randrange(MIN_OPERATION_CODE, max_op_code + 1)
     op_lock.release()
 
     # Busy loop generating operation code and ticks
     while True:
-        # Sleep for tick duration
-        time.sleep(TICK_DURATION)
-
         # Generate operation code
         with op_lock:
-            op_code = randrange(MIN_OPERATION_NUM, MAX_OPERATION_NUM + 1)
+            op_code = randrange(MIN_OPERATION_CODE, max_op_code + 1)
 
         # Increment logical time
         with clock_lock:
@@ -94,6 +92,9 @@ def machine(config):
 
         # Release threads by setting tick event
         tick.set()
+
+        # Sleep for tick duration
+        sleep(TICK_DURATION)
 
 
 def server(config):

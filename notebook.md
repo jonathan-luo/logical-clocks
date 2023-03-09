@@ -9,10 +9,10 @@ Our model consists of three Processes (representing intercommunicating virtual m
 - 2 producer threads to send messages to each of the other machines
 
 ### Machine Thread
-The `machine()` function takes in a configuration object and initializes the virtual machines by doing the following:
+The `machine()` function takes in a configuration object (a Python `list`) as well as as optional arguments for tick rate (number of ticks per second) and the maximum operation number (inclusive; default is 10). Its purpose is to initialize the virtual machines by doing the following:
 1. Defining locks and events for synchronization.
 2. Declaring a global message queue for the machine.
-3. Initializing the logical clock time and determining the tick duration using a random number generator.
+3. Initializing the logical clock time and determining the tick duration either by using the tick rate, if specified, or using a random number generator.
 4. Starting the server-side logic in a separate thread.
 5. Clearing and initializing the log file.
 6. Creating and connecting all producers (passed as a parameter to the function).
@@ -23,7 +23,7 @@ The `machine()` function takes in a configuration object and initializes the vir
 Each time the `server()` thread detects a new connection attempt, it spawns a new consumer thread responsible for socket message reception.
 
 ### Consumer Thread
-As each machine has two "neighbor" machines, each machine will spawn 2 consumer threads, and as permitted in the assignment specification, each `consumer()` thread listens for and loads messages at system speed, not the randomly chosen tick rate of the virtual machines. It loads these messages into the global message queue (implemented as a python `list`).
+As each machine has two "neighbor" machines, each machine will spawn 2 consumer threads, and as permitted in the assignment specification, each `consumer()` thread listens for and loads messages at system speed, not the randomly chosen tick rate of the virtual machines. It loads these messages into the global message queue (implemented as a Python `list`).
 
 ### Producer Thread
 The `producer()` function takes in a client and server information, a log file name, and a thread number. The function defines the producer (client) logic by doing the following:
